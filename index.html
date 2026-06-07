@@ -992,6 +992,53 @@ function importData(){try{const d=JSON.parse(document.getElementById('import-tex
 function resetAll(){if(!confirm('全データを削除します。よろしいですか？'))return;tasks={};routines={};history={};streakData={};save();renderTasks();renderRoutines();renderHistory();showToast('削除しました');}
 
 // ── INIT ──
+// HTMLのonclickから呼べるようにwindowに登録
+window.renderTasks = renderTasks;
+window.toggleSidebar = toggleSidebar;
+window.saveEdit = saveEdit;
+window.saveSubtaskEdit = saveSubtaskEdit;
+window.applyPomoSettings = applyPomoSettings;
+window.addEditSubtask = addEditSubtask;
+window.showTab = showTab;
+window.removeTag = removeTag;
+window.deleteCategory = deleteCategory;
+window.openEdit = openEdit;
+window.selectCalDay = selectCalDay;
+window.skipPomo = skipPomo;
+window.toggleSubtaskSection = toggleSubtaskSection;
+window.closeModal = closeModal;
+window.moveMonth = moveMonth;
+window.deleteSubtask = deleteSubtask;
+window.resetAll = resetAll;
+window.toggleTheme = toggleTheme;
+window.addRoutine = addRoutine;
+window.closeSidebar = closeSidebar;
+window.handleSubtaskEditKey = handleSubtaskEditKey;
+window.startEditSubtask = startEditSubtask;
+window.toggleTask = toggleTask;
+window.togglePomo = togglePomo;
+window.handleTagInput = handleTagInput;
+window.resetRoutine = resetRoutine;
+window.deleteRoutine = deleteRoutine;
+window.toggleDoneSection = toggleDoneSection;
+window.clearHistory = clearHistory;
+window.resetPomo = resetPomo;
+window.addInlineSubtask = addInlineSubtask;
+window.toggleSubtask = toggleSubtask;
+window.addCategory = addCategory;
+window.addTask = addTask;
+window.importData = importData;
+window.toggleRoutine = toggleRoutine;
+window.deleteTask = deleteTask;
+window.setFilter = setFilter;
+window.setPomoTask = setPomoTask;
+window.requestNotifPermission = requestNotifPermission;
+window.moveWeek = moveWeek;
+window.exportData = exportData;
+window.copyUrl = copyUrl;
+window.installApp = installApp;
+window.toggleDoneSection = toggleDoneSection;
+
 function _startApp(){
   initTheme();
   initCalendar();
