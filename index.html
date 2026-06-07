@@ -645,6 +645,14 @@ const _db  = getDatabase(_app);
 const _PATH = 'personal';
 let _fbReady = false;
 
+// ── SYNC UI ── (最初に定義)
+function _setSyncUI(state, label){
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  if(dot) dot.className = 'sync-dot' + (state==='live' ? ' live' : state==='syncing' ? ' syncing' : '');
+  if(lbl) lbl.textContent = label;
+}
+
 // ── STATE ──
 const DEFAULT_CATS = ['仕事','個人','買い物','健康','学習'];
 let categories = JSON.parse(localStorage.getItem('tm_categories') || 'null') || [...DEFAULT_CATS];
@@ -997,22 +1005,22 @@ function _startApp(){
   renderRoutines();
   updatePomoUI();
 }
+// Firebase初期ロード
 _setSyncUI('syncing','同期中...');
-fbGet(ref(_db,_PATH)).then(snap=>{
-  const d=snap.val();
+fbGet(ref(_db, _PATH)).then(snap => {
+  const d = snap.val();
   if(d){
-    if(d.tasks)     { tasks=d.tasks;       localStorage.setItem('tm_tasks',JSON.stringify(tasks)); }
-    if(d.routines)  { routines=d.routines; localStorage.setItem('tm_routines',JSON.stringify(routines)); }
-    if(d.history)   { history=d.history;   localStorage.setItem('tm_history',JSON.stringify(history)); }
-    if(d.streak)    { streakData=d.streak; localStorage.setItem('tm_streak',JSON.stringify(streakData)); }
-    if(d.categories){ categories=d.categories; localStorage.setItem('tm_categories',JSON.stringify(categories)); }
+    if(d.tasks)      { tasks=d.tasks;       localStorage.setItem('tm_tasks',JSON.stringify(tasks)); }
+    if(d.routines)   { routines=d.routines; localStorage.setItem('tm_routines',JSON.stringify(routines)); }
+    if(d.history)    { history=d.history;   localStorage.setItem('tm_history',JSON.stringify(history)); }
+    if(d.streak)     { streakData=d.streak; localStorage.setItem('tm_streak',JSON.stringify(streakData)); }
+    if(d.categories) { categories=d.categories; localStorage.setItem('tm_categories',JSON.stringify(categories)); }
   }
-  _fbReady=true;
+  _fbReady = true;
   _setSyncUI('live','同期済み');
   _startApp();
-}).catch(e=>{
-  console.error('Firebase error:',e);
-  _fbReady=false;
+}).catch(e => {
+  console.error('Firebase error:', e);
   _setSyncUI('off','オフライン');
   _startApp();
 });
