@@ -688,7 +688,22 @@ let pomoSettings = JSON.parse(localStorage.getItem('tm_pomo_settings') || '{"wor
 let pomoState = {mode:'work',remaining:0,session:0,todayDone:0,running:false,taskId:'',interval:null};
 let sidebarOpen = true;
 
-function save(){localStorage.setItem('tm_tasks',JSON.stringify(tasks));localStorage.setItem('tm_routines',JSON.stringify(routines));localStorage.setItem('tm_history',JSON.stringify(history));localStorage.setItem('tm_streak',JSON.stringify(streakData));localStorage.setItem('tm_categories',JSON.stringify(categories));}
+function save(){
+  localStorage.setItem('tm_tasks',JSON.stringify(tasks));
+  localStorage.setItem('tm_routines',JSON.stringify(routines));
+  localStorage.setItem('tm_history',JSON.stringify(history));
+  localStorage.setItem('tm_streak',JSON.stringify(streakData));
+  localStorage.setItem('tm_categories',JSON.stringify(categories));
+  if(_fbReady && _db){
+    const {ref, fbSet} = _fbModules;
+    fbSet(ref(_db,'personal/tasks'),tasks);
+    fbSet(ref(_db,'personal/routines'),routines);
+    fbSet(ref(_db,'personal/history'),history);
+    fbSet(ref(_db,'personal/streak'),streakData);
+    fbSet(ref(_db,'personal/categories'),categories);
+    _setSyncUI('live','同期済み');
+  }
+}
 
 // ── SIDEBAR ──
 function toggleSidebar(){
