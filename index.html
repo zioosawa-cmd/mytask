@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- saved from url=(0053)file:///C:/Users/zioos/Downloads/task-manager-v6.html -->
-<html lang="ja" data-theme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>タスク管理</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="./タスク管理11_files/css2" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f7f5f0;--surface:#fff;--surface2:#f0ede6;
@@ -286,6 +286,12 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
 /* ── PAGE TITLE ── */
 .page-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
+/* ── SYNC ── */
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#fca5a5;}
+.sync-dot.live{background:#86efac;}
+.sync-dot.syncing{background:#fcd34d;animation:pulse2 1s infinite;}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:0.3}}
+
 /* ── SUBTASK INLINE EDIT ── */
 .subtask-item{display:flex;align-items:center;gap:6px;padding:3px 0;}
 .subtask-item:hover .subtask-edit-btn{opacity:1;}
@@ -368,43 +374,43 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-section-label">メイン</div>
-      <button class="nav-item active" onclick="showTab(&#39;tasks&#39;)" id="nav-tasks">
+      <button class="nav-item active" onclick="showTab('tasks')" id="nav-tasks">
         <span class="nav-icon">📋</span>タスク
         <span class="nav-badge amber" id="nb-urgent" style="display:none"></span>
       </button>
-      <button class="nav-item" onclick="showTab(&#39;today&#39;)" id="nav-today">
+      <button class="nav-item" onclick="showTab('today')" id="nav-today">
         <span class="nav-icon">📅</span>今日
         <span class="nav-badge" id="nb-today" style="display:none"></span>
       </button>
-      <button class="nav-item" onclick="showTab(&#39;pomo&#39;)" id="nav-pomo">
+      <button class="nav-item" onclick="showTab('pomo')" id="nav-pomo">
         <span class="nav-icon">🍅</span>ポモドーロ
       </button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">カレンダー</div>
-      <button class="nav-item" onclick="showTab(&#39;calendar&#39;)" id="nav-calendar">
+      <button class="nav-item" onclick="showTab('calendar')" id="nav-calendar">
         <span class="nav-icon">🗓</span>月カレンダー
       </button>
-      <button class="nav-item" onclick="showTab(&#39;week&#39;)" id="nav-week">
+      <button class="nav-item" onclick="showTab('week')" id="nav-week">
         <span class="nav-icon">📆</span>週ビュー
       </button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">分析</div>
-      <button class="nav-item" onclick="showTab(&#39;report&#39;)" id="nav-report">
+      <button class="nav-item" onclick="showTab('report')" id="nav-report">
         <span class="nav-icon">📊</span>レポート
       </button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">その他</div>
-      <button class="nav-item" onclick="showTab(&#39;routine&#39;)" id="nav-routine">
+      <button class="nav-item" onclick="showTab('routine')" id="nav-routine">
         <span class="nav-icon">🔄</span>ルーティン
         <span class="nav-badge green" id="nb-routine" style="display:none"></span>
       </button>
-      <button class="nav-item" onclick="showTab(&#39;history&#39;)" id="nav-history">
+      <button class="nav-item" onclick="showTab('history')" id="nav-history">
         <span class="nav-icon">📜</span>履歴
       </button>
-      <button class="nav-item" onclick="showTab(&#39;backup&#39;)" id="nav-backup">
+      <button class="nav-item" onclick="showTab('backup')" id="nav-backup">
         <span class="nav-icon">⚙️</span>設定
       </button>
     </div>
@@ -417,15 +423,15 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
     <div id="tab-tasks" class="section active">
       <div class="page-title">📋 タスク</div>
       <div id="firebase-notice" class="notice" style="display:none">⚠️ Firebase未設定。このブラウザのみに保存中。</div>
-      <div class="stats" id="stats"><div class="stat"><div class="stat-num">0</div><div class="stat-lbl">未完了</div></div><div class="stat"><div class="stat-num" style="color:var(--amber)">0</div><div class="stat-lbl">急ぎ（24h）</div></div><div class="stat"><div class="stat-num" style="color:var(--red)">0</div><div class="stat-lbl">期限切れ</div></div><div class="stat"><div class="stat-num" style="color:var(--accent)">0</div><div class="stat-lbl">完了</div></div></div>
+      <div class="stats" id="stats"></div>
       <div class="time-summary" id="time-summary" style="display:none"></div>
       <div class="toolbar">
         <div class="filter-row">
-          <button class="filter-btn active" onclick="setFilter(&#39;all&#39;,this)">すべて</button>
-          <button class="filter-btn" onclick="setFilter(&#39;active&#39;,this)">未完了</button>
-          <button class="filter-btn" onclick="setFilter(&#39;urgent&#39;,this)">急ぎ</button>
-          <button class="filter-btn" onclick="setFilter(&#39;overdue&#39;,this)">期限切れ</button>
-          <button class="filter-btn" onclick="setFilter(&#39;done&#39;,this)">完了済み</button>
+          <button class="filter-btn active" onclick="setFilter('all',this)">すべて</button>
+          <button class="filter-btn" onclick="setFilter('active',this)">未完了</button>
+          <button class="filter-btn" onclick="setFilter('urgent',this)">急ぎ</button>
+          <button class="filter-btn" onclick="setFilter('overdue',this)">期限切れ</button>
+          <button class="filter-btn" onclick="setFilter('done',this)">完了済み</button>
         </div>
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
@@ -439,23 +445,25 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
           <div class="form-group"><label>期限</label>
   <div style="display:flex;gap:4px;flex-wrap:wrap">
     <input type="date" id="t-due-date" style="flex:1;min-width:110px">
-    <select id="t-due-time" style="min-width:90px"><option value="">時間なし</option><option value="00:00">00:00</option><option value="00:15">00:15</option><option value="00:30">00:30</option><option value="00:45">00:45</option><option value="01:00">01:00</option><option value="01:15">01:15</option><option value="01:30">01:30</option><option value="01:45">01:45</option><option value="02:00">02:00</option><option value="02:15">02:15</option><option value="02:30">02:30</option><option value="02:45">02:45</option><option value="03:00">03:00</option><option value="03:15">03:15</option><option value="03:30">03:30</option><option value="03:45">03:45</option><option value="04:00">04:00</option><option value="04:15">04:15</option><option value="04:30">04:30</option><option value="04:45">04:45</option><option value="05:00">05:00</option><option value="05:15">05:15</option><option value="05:30">05:30</option><option value="05:45">05:45</option><option value="06:00">06:00</option><option value="06:15">06:15</option><option value="06:30">06:30</option><option value="06:45">06:45</option><option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option><option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option><option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option><option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option><option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option><option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option><option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option><option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option><option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option><option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option><option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option><option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option><option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option><option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option><option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option><option value="22:00">22:00</option><option value="22:15">22:15</option><option value="22:30">22:30</option><option value="22:45">22:45</option><option value="23:00">23:00</option><option value="23:15">23:15</option><option value="23:30">23:30</option><option value="23:45">23:45</option></select>
+    <select id="t-due-time" style="min-width:90px">
+      <option value="">時間なし</option>
+    </select>
   </div>
 </div>
         </div>
         <div class="form-row" style="margin-top:8px">
-          <div class="form-group" style="max-width:110px"><label>優先順位</label><select id="t-priority"><option value="high">🔴 高</option><option value="med" selected="">🟡 中</option><option value="low">🟢 低</option></select></div>
-          <div class="form-group" style="max-width:115px"><label>カテゴリ</label><select id="t-category"><option value="">なし</option><option value="仕事">仕事</option><option value="個人">個人</option><option value="買い物">買い物</option><option value="健康">健康</option><option value="学習">学習</option></select></div>
+          <div class="form-group" style="max-width:110px"><label>優先順位</label><select id="t-priority"><option value="high">🔴 高</option><option value="med" selected>🟡 中</option><option value="low">🟢 低</option></select></div>
+          <div class="form-group" style="max-width:115px"><label>カテゴリ</label><select id="t-category"></select></div>
           <div class="form-group" style="max-width:110px"><label>所要時間（分）</label><input type="number" id="t-duration" placeholder="30" min="1" max="999"></div>
           <div class="form-group" style="max-width:115px"><label>繰り返し</label><select id="t-repeat"><option value="">なし</option><option value="daily">毎日</option><option value="weekly">毎週</option><option value="monthly">毎月</option></select></div>
         </div>
         <div class="form-row" style="margin-top:8px;align-items:flex-end">
-          <div class="form-group"><label>タグ（Enter で追加）</label><div class="tag-input-wrap" id="tag-wrap" onclick="document.getElementById(&#39;tag-input&#39;).focus()"><input type="text" id="tag-input" placeholder="タグ..." onkeydown="handleTagInput(event)"></div></div>
+          <div class="form-group"><label>タグ（Enter で追加）</label><div class="tag-input-wrap" id="tag-wrap" onclick="document.getElementById('tag-input').focus()"><input type="text" id="tag-input" placeholder="タグ..." onkeydown="handleTagInput(event)"></div></div>
           <div class="form-group" style="flex:2"><label>メモ</label><input type="text" id="t-note" placeholder="補足メモ..."></div>
           <button class="btn btn-primary" onclick="addTask()">追加</button>
         </div>
       </div>
-      <div id="task-list"><div class="empty">🔍 該当するタスクがありません</div></div>
+      <div id="task-list"></div>
     </div>
 
     <!-- TODAY -->
@@ -474,8 +482,8 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
         <div class="pomo-mode work" id="pomo-mode-label">作業時間</div>
         <div class="pomo-ring">
           <svg width="160" height="160" viewBox="0 0 160 160">
-            <circle class="pomo-ring-bg" cx="80" cy="80" r="68"></circle>
-            <circle class="pomo-ring-fg" cx="80" cy="80" r="68" id="pomo-ring-fg" stroke="#2d6a4f" stroke-dasharray="427" stroke-dashoffset="0" style="stroke-dasharray: 427.257; stroke-dashoffset: 0; stroke: var(--accent);"></circle>
+            <circle class="pomo-ring-bg" cx="80" cy="80" r="68"/>
+            <circle class="pomo-ring-fg" cx="80" cy="80" r="68" id="pomo-ring-fg" stroke="#2d6a4f" stroke-dasharray="427" stroke-dashoffset="0"/>
           </svg>
           <div class="pomo-time" id="pomo-time">25:00</div>
         </div>
@@ -547,7 +555,7 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px"><span>進捗</span><span id="rp-label"></span></div>
         <div class="routine-progress"><div class="routine-progress-bar" id="rp-bar"></div></div>
       </div>
-      <div class="routine-card"><div id="routine-list"><div class="empty" style="padding:20px 0">ルーティンを追加してください</div></div></div>
+      <div class="routine-card"><div id="routine-list"></div></div>
     </div>
 
     <!-- HISTORY -->
@@ -566,13 +574,13 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
   <div class="backup-title">🏷️ カテゴリ管理</div>
   <p style="font-size:12px;color:var(--text2);margin-bottom:10px">カテゴリを自由に追加・削除できます。デフォルトのカテゴリは削除できません。</p>
   <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
-    <input type="text" id="new-cat-input" placeholder="新しいカテゴリ名..." style="flex:1" onkeydown="if(event.key===&#39;Enter&#39;)addCategory()">
+    <input type="text" id="new-cat-input" placeholder="新しいカテゴリ名..." style="flex:1" onkeydown="if(event.key==='Enter')addCategory()">
     <button class="btn btn-primary btn-sm" onclick="addCategory()">＋ 追加</button>
   </div>
   <div id="cat-list"></div>
 </div>
 <div class="backup-section"><div class="backup-title">💾 エクスポート</div><p style="font-size:12px;color:var(--text2);margin-bottom:10px">全データをJSONでダウンロード</p><button class="btn btn-primary" onclick="exportData()">📥 ダウンロード</button></div>
-      <div class="backup-section"><div class="backup-title">📤 インポート</div><p style="font-size:12px;color:var(--text2);margin-bottom:8px">JSONを貼り付けてインポート。⚠️ 現在のデータは上書きされます。</p><textarea class="backup-text" id="import-text" placeholder="{&quot;tasks&quot;:{...}}"></textarea><div style="margin-top:8px"><button class="btn btn-primary" onclick="importData()">📤 インポート</button></div></div>
+      <div class="backup-section"><div class="backup-title">📤 インポート</div><p style="font-size:12px;color:var(--text2);margin-bottom:8px">JSONを貼り付けてインポート。⚠️ 現在のデータは上書きされます。</p><textarea class="backup-text" id="import-text" placeholder='{"tasks":{...}}'></textarea><div style="margin-top:8px"><button class="btn btn-primary" onclick="importData()">📤 インポート</button></div></div>
       <div class="backup-section"><div class="backup-title">🗑️ 全データ削除</div><p style="font-size:12px;color:var(--text2);margin-bottom:8px">この操作は元に戻せません。</p><button class="btn btn-danger" style="border:1px solid var(--red)" onclick="resetAll()">⚠️ 全データを削除</button></div>
     </div>
 
@@ -590,13 +598,15 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
         <div class="form-group"><label>期限</label>
   <div style="display:flex;gap:4px;flex-wrap:wrap">
     <input type="date" id="edit-due-date" style="flex:1;min-width:110px">
-    <select id="edit-due-time" style="min-width:90px"><option value="">時間なし</option><option value="00:00">00:00</option><option value="00:15">00:15</option><option value="00:30">00:30</option><option value="00:45">00:45</option><option value="01:00">01:00</option><option value="01:15">01:15</option><option value="01:30">01:30</option><option value="01:45">01:45</option><option value="02:00">02:00</option><option value="02:15">02:15</option><option value="02:30">02:30</option><option value="02:45">02:45</option><option value="03:00">03:00</option><option value="03:15">03:15</option><option value="03:30">03:30</option><option value="03:45">03:45</option><option value="04:00">04:00</option><option value="04:15">04:15</option><option value="04:30">04:30</option><option value="04:45">04:45</option><option value="05:00">05:00</option><option value="05:15">05:15</option><option value="05:30">05:30</option><option value="05:45">05:45</option><option value="06:00">06:00</option><option value="06:15">06:15</option><option value="06:30">06:30</option><option value="06:45">06:45</option><option value="07:00">07:00</option><option value="07:15">07:15</option><option value="07:30">07:30</option><option value="07:45">07:45</option><option value="08:00">08:00</option><option value="08:15">08:15</option><option value="08:30">08:30</option><option value="08:45">08:45</option><option value="09:00">09:00</option><option value="09:15">09:15</option><option value="09:30">09:30</option><option value="09:45">09:45</option><option value="10:00">10:00</option><option value="10:15">10:15</option><option value="10:30">10:30</option><option value="10:45">10:45</option><option value="11:00">11:00</option><option value="11:15">11:15</option><option value="11:30">11:30</option><option value="11:45">11:45</option><option value="12:00">12:00</option><option value="12:15">12:15</option><option value="12:30">12:30</option><option value="12:45">12:45</option><option value="13:00">13:00</option><option value="13:15">13:15</option><option value="13:30">13:30</option><option value="13:45">13:45</option><option value="14:00">14:00</option><option value="14:15">14:15</option><option value="14:30">14:30</option><option value="14:45">14:45</option><option value="15:00">15:00</option><option value="15:15">15:15</option><option value="15:30">15:30</option><option value="15:45">15:45</option><option value="16:00">16:00</option><option value="16:15">16:15</option><option value="16:30">16:30</option><option value="16:45">16:45</option><option value="17:00">17:00</option><option value="17:15">17:15</option><option value="17:30">17:30</option><option value="17:45">17:45</option><option value="18:00">18:00</option><option value="18:15">18:15</option><option value="18:30">18:30</option><option value="18:45">18:45</option><option value="19:00">19:00</option><option value="19:15">19:15</option><option value="19:30">19:30</option><option value="19:45">19:45</option><option value="20:00">20:00</option><option value="20:15">20:15</option><option value="20:30">20:30</option><option value="20:45">20:45</option><option value="21:00">21:00</option><option value="21:15">21:15</option><option value="21:30">21:30</option><option value="21:45">21:45</option><option value="22:00">22:00</option><option value="22:15">22:15</option><option value="22:30">22:30</option><option value="22:45">22:45</option><option value="23:00">23:00</option><option value="23:15">23:15</option><option value="23:30">23:30</option><option value="23:45">23:45</option></select>
+    <select id="edit-due-time" style="min-width:90px">
+      <option value="">時間なし</option>
+    </select>
   </div>
 </div>
         <div class="form-group"><label>優先順位</label><select id="edit-priority"><option value="high">🔴 高</option><option value="med">🟡 中</option><option value="low">🟢 低</option></select></div>
       </div>
       <div class="form-row" style="margin-bottom:10px">
-        <div class="form-group"><label>カテゴリ</label><select id="edit-category"><option value="">なし</option><option value="仕事">仕事</option><option value="個人">個人</option><option value="買い物">買い物</option><option value="健康">健康</option><option value="学習">学習</option></select></div>
+        <div class="form-group"><label>カテゴリ</label><select id="edit-category"></select></div>
         <div class="form-group"><label>所要時間（分）</label><input type="number" id="edit-duration" min="1"></div>
         <div class="form-group"><label>繰り返し</label><select id="edit-repeat"><option value="">なし</option><option value="daily">毎日</option><option value="weekly">毎週</option><option value="monthly">毎月</option></select></div>
       </div>
@@ -605,7 +615,7 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
     <div class="modal-section">
       <div class="modal-section-title">サブタスク</div>
       <div id="edit-subtask-list"></div>
-      <div class="subtask-add" style="margin-top:6px"><input type="text" id="edit-subtask-input" placeholder="サブタスクを追加..." onkeydown="if(event.key===&#39;Enter&#39;)addEditSubtask()"><button class="btn btn-sm" onclick="addEditSubtask()">追加</button></div>
+      <div class="subtask-add" style="margin-top:6px"><input type="text" id="edit-subtask-input" placeholder="サブタスクを追加..." onkeydown="if(event.key==='Enter')addEditSubtask()"><button class="btn btn-sm" onclick="addEditSubtask()">追加</button></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
@@ -616,7 +626,24 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+// ── FIREBASE 設定 ──
+const firebaseConfig = {
+  apiKey: "AIzaSyAAJvIpQXqjBa0aIDeVKCsb6Pgt1GN8uIw",
+  authDomain: "task-a328d.firebaseapp.com",
+  databaseURL: "https://task-a328d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "task-a328d",
+  storageBucket: "task-a328d.firebasestorage.app",
+  messagingSenderId: "1091290712009",
+  appId: "1:1091290712009:web:c35bfa7a0120a57e928a18"
+};
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set as fbSet, get as fbGet }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const _app = initializeApp(firebaseConfig);
+const _db  = getDatabase(_app);
+const FB_PATH = 'personal_tasks'; // チームタスクと分けるためのパス
+
 // ── STATE ──
 const DEFAULT_CATS = ['仕事','個人','買い物','健康','学習'];
 let categories = JSON.parse(localStorage.getItem('tm_categories') || 'null') || [...DEFAULT_CATS];
@@ -624,6 +651,7 @@ let tasks    = JSON.parse(localStorage.getItem('tm_tasks')    || '{}');
 let routines = JSON.parse(localStorage.getItem('tm_routines') || '{}');
 let history  = JSON.parse(localStorage.getItem('tm_history')  || '[]');
 let streakData = JSON.parse(localStorage.getItem('tm_streak') || '{}');
+let _fbReady = false;
 let currentFilter = 'all', timerInterval = null, editingId = null;
 let pendingTags = [], dragSrcId = null, editSubtasks = [];
 let calYear, calMonth, calSelectedDate = null, weekOffset = 0;
@@ -968,6 +996,5 @@ renderTasks();
 renderRoutines();
 updatePomoUI();
 </script>
-
-
-</body></html>
+</body>
+</html>
