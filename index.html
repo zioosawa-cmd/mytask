@@ -286,11 +286,11 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
 /* ── PAGE TITLE ── */
 .page-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
-/* ── SYNC ── */
-.sync-dot{width:6px;height:6px;border-radius:50%;background:#fca5a5;}
+/* ── SYNC DOT ── */
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#fca5a5;display:inline-block;}
 .sync-dot.live{background:#86efac;}
-.sync-dot.syncing{background:#fcd34d;animation:pulse2 1s infinite;}
-@keyframes pulse2{0%,100%{opacity:1}50%{opacity:0.3}}
+.sync-dot.syncing{background:#fcd34d;animation:sdpulse 1s infinite;}
+@keyframes sdpulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* ── SUBTASK INLINE EDIT ── */
 .subtask-item{display:flex;align-items:center;gap:6px;padding:3px 0;}
@@ -627,8 +627,11 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
 <div class="toast" id="toast"></div>
 
 <script type="module">
-// ── FIREBASE 設定 ──
-const firebaseConfig = {
+// ── FIREBASE ──
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set as fbSet, get as fbGet }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const _fbCfg = {
   apiKey: "AIzaSyAAJvIpQXqjBa0aIDeVKCsb6Pgt1GN8uIw",
   authDomain: "task-a328d.firebaseapp.com",
   databaseURL: "https://task-a328d-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -637,12 +640,10 @@ const firebaseConfig = {
   messagingSenderId: "1091290712009",
   appId: "1:1091290712009:web:c35bfa7a0120a57e928a18"
 };
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set as fbSet, get as fbGet }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-const _app = initializeApp(firebaseConfig);
+const _app = initializeApp(_fbCfg);
 const _db  = getDatabase(_app);
-const FB_PATH = 'personal_tasks'; // チームタスクと分けるためのパス
+const _PATH = 'personal';
+let _fbReady = false;
 
 // ── STATE ──
 const DEFAULT_CATS = ['仕事','個人','買い物','健康','学習'];
@@ -651,7 +652,6 @@ let tasks    = JSON.parse(localStorage.getItem('tm_tasks')    || '{}');
 let routines = JSON.parse(localStorage.getItem('tm_routines') || '{}');
 let history  = JSON.parse(localStorage.getItem('tm_history')  || '[]');
 let streakData = JSON.parse(localStorage.getItem('tm_streak') || '{}');
-let _fbReady = false;
 let currentFilter = 'all', timerInterval = null, editingId = null;
 let pendingTags = [], dragSrcId = null, editSubtasks = [];
 let calYear, calMonth, calSelectedDate = null, weekOffset = 0;
@@ -984,17 +984,38 @@ function importData(){try{const d=JSON.parse(document.getElementById('import-tex
 function resetAll(){if(!confirm('全データを削除します。よろしいですか？'))return;tasks={};routines={};history={};streakData={};save();renderTasks();renderRoutines();renderHistory();showToast('削除しました');}
 
 // ── INIT ──
-initTheme();
-initCalendar();
-refreshAllCatSelects();
-initDueSelects();
-cleanOldDoneTasks();
-checkAutoReset();
-updateStreak();
-pomoState.remaining = pomoSettings.work * 60;
-renderTasks();
-renderRoutines();
-updatePomoUI();
+function _startApp(){
+  initTheme();
+  initCalendar();
+  refreshAllCatSelects();
+  initDueSelects();
+  cleanOldDoneTasks();
+  checkAutoReset();
+  updateStreak();
+  pomoState.remaining = pomoSettings.work * 60;
+  renderTasks();
+  renderRoutines();
+  updatePomoUI();
+}
+_setSyncUI('syncing','同期中...');
+fbGet(ref(_db,_PATH)).then(snap=>{
+  const d=snap.val();
+  if(d){
+    if(d.tasks)     { tasks=d.tasks;       localStorage.setItem('tm_tasks',JSON.stringify(tasks)); }
+    if(d.routines)  { routines=d.routines; localStorage.setItem('tm_routines',JSON.stringify(routines)); }
+    if(d.history)   { history=d.history;   localStorage.setItem('tm_history',JSON.stringify(history)); }
+    if(d.streak)    { streakData=d.streak; localStorage.setItem('tm_streak',JSON.stringify(streakData)); }
+    if(d.categories){ categories=d.categories; localStorage.setItem('tm_categories',JSON.stringify(categories)); }
+  }
+  _fbReady=true;
+  _setSyncUI('live','同期済み');
+  _startApp();
+}).catch(e=>{
+  console.error('Firebase error:',e);
+  _fbReady=false;
+  _setSyncUI('off','オフライン');
+  _startApp();
+});
 </script>
 </body>
 </html>
