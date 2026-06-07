@@ -626,31 +626,52 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-// ── FIREBASE ──
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set as fbSet, get as fbGet }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-const _fbCfg = {
-  apiKey: "AIzaSyAAJvIpQXqjBa0aIDeVKCsb6Pgt1GN8uIw",
-  authDomain: "task-a328d.firebaseapp.com",
-  databaseURL: "https://task-a328d-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "task-a328d",
-  storageBucket: "task-a328d.firebasestorage.app",
-  messagingSenderId: "1091290712009",
-  appId: "1:1091290712009:web:c35bfa7a0120a57e928a18"
-};
-const _app = initializeApp(_fbCfg);
-const _db  = getDatabase(_app);
-const _PATH = 'personal';
-let _fbReady = false;
+<script>
+// ── FIREBASE (動的ロード) ──
+let _db = null, _fbReady = false, _PATH = "personal";
+let _fbModules = {};
 
-// ── SYNC UI ── (最初に定義)
 function _setSyncUI(state, label){
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  if(dot) dot.className = 'sync-dot' + (state==='live' ? ' live' : state==='syncing' ? ' syncing' : '');
+  const dot = document.getElementById("syncDot");
+  const lbl = document.getElementById("syncLabel");
+  if(dot) dot.className = "sync-dot" + (state==="live" ? " live" : state==="syncing" ? " syncing" : "");
   if(lbl) lbl.textContent = label;
+}
+
+async function _initFirebase(){
+  try{
+    _setSyncUI("syncing","同期中...");
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, set: fbSet, get: fbGet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const app = initializeApp({
+      apiKey: "AIzaSyAAJvIpQXqjBa0aIDeVKCsb6Pgt1GN8uIw",
+      authDomain: "task-a328d.firebaseapp.com",
+      databaseURL: "https://task-a328d-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "task-a328d",
+      storageBucket: "task-a328d.firebasestorage.app",
+      messagingSenderId: "1091290712009",
+      appId: "1:1091290712009:web:c35bfa7a0120a57e928a18"
+    });
+    _db = getDatabase(app);
+    _fbModules = { ref, fbSet, fbGet };
+    // 初期データ読み込み
+    const snap = await fbGet(ref(_db, _PATH));
+    const d = snap.val();
+    if(d){
+      if(d.tasks)      { tasks=d.tasks;       localStorage.setItem("tm_tasks",JSON.stringify(tasks)); }
+      if(d.routines)   { routines=d.routines; localStorage.setItem("tm_routines",JSON.stringify(routines)); }
+      if(d.history)    { history=d.history;   localStorage.setItem("tm_history",JSON.stringify(history)); }
+      if(d.streak)     { streakData=d.streak; localStorage.setItem("tm_streak",JSON.stringify(streakData)); }
+      if(d.categories) { categories=d.categories; localStorage.setItem("tm_categories",JSON.stringify(categories)); }
+    }
+    _fbReady = true;
+    _setSyncUI("live","同期済み");
+    renderTasks();
+    renderRoutines();
+  } catch(e){
+    console.error("Firebase error:", e);
+    _setSyncUI("off","オフライン");
+  }
 }
 
 // ── STATE ──
@@ -992,85 +1013,19 @@ function importData(){try{const d=JSON.parse(document.getElementById('import-tex
 function resetAll(){if(!confirm('全データを削除します。よろしいですか？'))return;tasks={};routines={};history={};streakData={};save();renderTasks();renderRoutines();renderHistory();showToast('削除しました');}
 
 // ── INIT ──
-// HTMLのonclickから呼べるようにwindowに登録
-window.renderTasks = renderTasks;
-window.toggleSidebar = toggleSidebar;
-window.saveEdit = saveEdit;
-window.saveSubtaskEdit = saveSubtaskEdit;
-window.applyPomoSettings = applyPomoSettings;
-window.addEditSubtask = addEditSubtask;
-window.showTab = showTab;
-window.removeTag = removeTag;
-window.deleteCategory = deleteCategory;
-window.openEdit = openEdit;
-window.selectCalDay = selectCalDay;
-window.skipPomo = skipPomo;
-window.toggleSubtaskSection = toggleSubtaskSection;
-window.closeModal = closeModal;
-window.moveMonth = moveMonth;
-window.deleteSubtask = deleteSubtask;
-window.resetAll = resetAll;
-window.toggleTheme = toggleTheme;
-window.addRoutine = addRoutine;
-window.closeSidebar = closeSidebar;
-window.handleSubtaskEditKey = handleSubtaskEditKey;
-window.startEditSubtask = startEditSubtask;
-window.toggleTask = toggleTask;
-window.togglePomo = togglePomo;
-window.handleTagInput = handleTagInput;
-window.resetRoutine = resetRoutine;
-window.deleteRoutine = deleteRoutine;
-window.toggleDoneSection = toggleDoneSection;
-window.clearHistory = clearHistory;
-window.resetPomo = resetPomo;
-window.addInlineSubtask = addInlineSubtask;
-window.toggleSubtask = toggleSubtask;
-window.addCategory = addCategory;
-window.addTask = addTask;
-window.importData = importData;
-window.toggleRoutine = toggleRoutine;
-window.deleteTask = deleteTask;
-window.setFilter = setFilter;
-window.setPomoTask = setPomoTask;
-window.requestNotifPermission = requestNotifPermission;
-window.moveWeek = moveWeek;
-window.exportData = exportData;
-window.copyUrl = copyUrl;
-window.installApp = installApp;
-window.toggleDoneSection = toggleDoneSection;
-
-function _startApp(){
-  initTheme();
-  initCalendar();
-  refreshAllCatSelects();
-  initDueSelects();
-  cleanOldDoneTasks();
-  checkAutoReset();
-  updateStreak();
-  pomoState.remaining = pomoSettings.work * 60;
-  renderTasks();
-  renderRoutines();
-  updatePomoUI();
-}
-// Firebase初期ロード
-_setSyncUI('syncing','同期中...');
-fbGet(ref(_db, _PATH)).then(snap => {
-  const d = snap.val();
-  if(d){
-    if(d.tasks)      { tasks=d.tasks;       localStorage.setItem('tm_tasks',JSON.stringify(tasks)); }
-    if(d.routines)   { routines=d.routines; localStorage.setItem('tm_routines',JSON.stringify(routines)); }
-    if(d.history)    { history=d.history;   localStorage.setItem('tm_history',JSON.stringify(history)); }
-    if(d.streak)     { streakData=d.streak; localStorage.setItem('tm_streak',JSON.stringify(streakData)); }
-    if(d.categories) { categories=d.categories; localStorage.setItem('tm_categories',JSON.stringify(categories)); }
-  }
-  _fbReady = true;
-  _setSyncUI('live','同期済み');
-  _startApp();
-}).catch(e => {
-  console.error('Firebase error:', e);
-  _setSyncUI('off','オフライン');
-  _startApp();
-});
+initTheme();
+initCalendar();
+refreshAllCatSelects();
+initDueSelects();
+cleanOldDoneTasks();
+checkAutoReset();
+updateStreak();
+pomoState.remaining = pomoSettings.work * 60;
+renderTasks();
+renderRoutines();
+updatePomoUI();
+// Firebase非同期ロード
+_initFirebase();
 </script>
 </body>
 </html>
