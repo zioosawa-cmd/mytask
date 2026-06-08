@@ -172,27 +172,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .modal-section{margin-bottom:12px;}
 .modal-section-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--border);}
 
-/* ── POMODORO ── */
-.pomo-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;text-align:center;box-shadow:var(--shadow);max-width:400px;margin:0 auto;}
-.pomo-task-name{font-size:13px;color:var(--text2);margin-bottom:6px;min-height:20px;}
-.pomo-mode{font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
-.pomo-mode.work{color:var(--accent);}
-.pomo-mode.break{color:var(--blue);}
-.pomo-mode.long{color:var(--purple);}
-.pomo-ring{position:relative;width:160px;height:160px;margin:0 auto 16px;}
-.pomo-ring svg{transform:rotate(-90deg);}
-.pomo-ring-bg{fill:none;stroke:var(--border);stroke-width:8;}
-.pomo-ring-fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke 0.3s;}
-.pomo-time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;font-family:var(--mono);}
-.pomo-sessions{font-size:12px;color:var(--text2);margin-bottom:14px;}
-.pomo-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.pomo-select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--sans);width:100%;margin-bottom:12px;}
-.pomo-settings{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-top:16px;text-align:left;}
-.pomo-settings-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;}
-.pomo-setting-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:13px;}
-.pomo-setting-row:last-child{margin-bottom:0;}
-.pomo-setting-row input{width:60px;text-align:center;}
-
 /* ── CALENDAR ── */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .cal-title{font-size:15px;font-weight:700;}
@@ -382,9 +361,6 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
         <span class="nav-icon">📅</span>今日
         <span class="nav-badge" id="nb-today" style="display:none"></span>
       </button>
-      <button class="nav-item" onclick="showTab('pomo')" id="nav-pomo">
-        <span class="nav-icon">🍅</span>ポモドーロ
-      </button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">カレンダー</div>
@@ -474,35 +450,6 @@ textarea.backup-text{font-size:11px;font-family:var(--mono);height:80px;resize:v
       <div id="today-content"></div>
     </div>
 
-    <!-- POMODORO -->
-    <div id="tab-pomo" class="section">
-      <div class="page-title">🍅 ポモドーロタイマー</div>
-      <div class="pomo-wrap">
-        <div class="pomo-task-name" id="pomo-task-name">タスクを選択してください</div>
-        <div class="pomo-mode work" id="pomo-mode-label">作業時間</div>
-        <div class="pomo-ring">
-          <svg width="160" height="160" viewBox="0 0 160 160">
-            <circle class="pomo-ring-bg" cx="80" cy="80" r="68"/>
-            <circle class="pomo-ring-fg" cx="80" cy="80" r="68" id="pomo-ring-fg" stroke="#2d6a4f" stroke-dasharray="427" stroke-dashoffset="0"/>
-          </svg>
-          <div class="pomo-time" id="pomo-time">25:00</div>
-        </div>
-        <div class="pomo-sessions" id="pomo-sessions">セッション：0 / 今日の完了：0</div>
-        <div style="margin-bottom:12px"><select class="pomo-select" id="pomo-task-select" onchange="setPomoTask()"><option value="">— タスクを選択 —</option></select></div>
-        <div class="pomo-controls">
-          <button class="btn btn-primary" id="pomo-start-btn" onclick="togglePomo()">▶ スタート</button>
-          <button class="btn" onclick="resetPomo()">↩ リセット</button>
-          <button class="btn" onclick="skipPomo()">⏭ スキップ</button>
-        </div>
-        <div class="pomo-settings">
-          <div class="pomo-settings-title">設定</div>
-          <div class="pomo-setting-row"><span>作業時間（分）</span><input type="number" id="ps-work" value="25" min="1" max="99" onchange="applyPomoSettings()"></div>
-          <div class="pomo-setting-row"><span>短い休憩（分）</span><input type="number" id="ps-short" value="5" min="1" max="30" onchange="applyPomoSettings()"></div>
-          <div class="pomo-setting-row"><span>長い休憩（分）</span><input type="number" id="ps-long" value="15" min="1" max="60" onchange="applyPomoSettings()"></div>
-          <div class="pomo-setting-row"><span>長い休憩まで</span><input type="number" id="ps-long-after" value="4" min="2" max="8" onchange="applyPomoSettings()"></div>
-        </div>
-      </div>
-    </div>
 
     <!-- CALENDAR -->
     <div id="tab-calendar" class="section">
@@ -684,8 +631,6 @@ let streakData = JSON.parse(localStorage.getItem('tm_streak') || '{}');
 let currentFilter = 'all', timerInterval = null, editingId = null;
 let pendingTags = [], dragSrcId = null, editSubtasks = [];
 let calYear, calMonth, calSelectedDate = null, weekOffset = 0;
-let pomoSettings = JSON.parse(localStorage.getItem('tm_pomo_settings') || '{"work":25,"short":5,"long":15,"longAfter":4}');
-let pomoState = {mode:'work',remaining:0,session:0,todayDone:0,running:false,taskId:'',interval:null};
 let sidebarOpen = true;
 
 function save(){
@@ -818,14 +763,13 @@ function toggleTheme(){const next=document.documentElement.getAttribute('data-th
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
 // ── TABS ──
-const TAB_IDS=['tasks','today','pomo','calendar','week','report','routine','history','backup'];
+const TAB_IDS=['tasks','today','calendar','week','report','routine','history','backup'];
 function showTab(name){
   TAB_IDS.forEach(id=>{document.getElementById('nav-'+id)?.classList.remove('active');document.getElementById('tab-'+id)?.classList.remove('active');});
   document.getElementById('nav-'+name)?.classList.add('active');
   document.getElementById('tab-'+name)?.classList.add('active');
   if(window.innerWidth<=680) closeSidebar();
   if(name==='today')    renderToday();
-  if(name==='pomo')     renderPomoTaskSelect();
   if(name==='calendar') renderCalendar();
   if(name==='week')     renderWeek();
   if(name==='report')   renderReport();
@@ -924,15 +868,6 @@ function getStreak(){let s=0;const d=new Date();for(let i=0;i<365;i++){const ds=
 // ── NOTIFICATIONS ──
 function requestNotifPermission(){if(!('Notification' in window)){showToast('このブラウザは通知非対応です');return;}Notification.requestPermission().then(p=>showToast(p==='granted'?'🔔 通知が有効になりました':'通知が拒否されました'));}
 function scheduleNotification(id,task){if(!task.due||Notification.permission!=='granted')return;const diff=new Date(task.due)-new Date()-3600000;if(diff>0&&diff<86400000)setTimeout(()=>{if(tasks[id]&&!tasks[id].done)new Notification('⏰ 期限1時間前',{body:task.title});},diff);}
-
-// ── POMODORO ──
-function applyPomoSettings(){pomoSettings={work:parseInt(document.getElementById('ps-work').value)||25,short:parseInt(document.getElementById('ps-short').value)||5,long:parseInt(document.getElementById('ps-long').value)||15,longAfter:parseInt(document.getElementById('ps-long-after').value)||4};localStorage.setItem('tm_pomo_settings',JSON.stringify(pomoSettings));if(!pomoState.running){pomoState.remaining=pomoSettings.work*60;pomoState.mode='work';updatePomoUI();}}
-function setPomoTask(){pomoState.taskId=document.getElementById('pomo-task-select').value;const t=tasks[pomoState.taskId];document.getElementById('pomo-task-name').textContent=t?t.title:'タスクを選択してください';}
-function renderPomoTaskSelect(){const sel=document.getElementById('pomo-task-select');const prev=sel.value;sel.innerHTML='<option value="">— タスクを選択 —</option>';Object.entries(tasks).filter(([,t])=>!t.done).forEach(([id,t])=>{const o=document.createElement('option');o.value=id;o.textContent=t.title;if(id===prev)o.selected=true;sel.appendChild(o);});}
-function togglePomo(){if(pomoState.running){clearInterval(pomoState.interval);pomoState.running=false;document.getElementById('pomo-start-btn').textContent='▶ スタート';}else{pomoState.running=true;document.getElementById('pomo-start-btn').textContent='⏸ 一時停止';pomoState.interval=setInterval(()=>{pomoState.remaining--;if(pomoState.remaining<=0){if(pomoState.mode==='work'){pomoState.session++;pomoState.todayDone++;if(pomoState.session%pomoSettings.longAfter===0){pomoState.mode='long';pomoState.remaining=pomoSettings.long*60;}else{pomoState.mode='break';pomoState.remaining=pomoSettings.short*60;}if(Notification.permission==='granted')new Notification('🍅 作業終了！',{body:'休憩しましょう'});}else{pomoState.mode='work';pomoState.remaining=pomoSettings.work*60;if(Notification.permission==='granted')new Notification('☕ 休憩終了！',{body:'作業を再開しましょう'});}}updatePomoUI();},1000);}}
-function resetPomo(){clearInterval(pomoState.interval);pomoState.running=false;pomoState.mode='work';pomoState.remaining=pomoSettings.work*60;document.getElementById('pomo-start-btn').textContent='▶ スタート';updatePomoUI();}
-function skipPomo(){clearInterval(pomoState.interval);pomoState.running=false;document.getElementById('pomo-start-btn').textContent='▶ スタート';if(pomoState.mode==='work'){pomoState.session++;pomoState.mode='break';pomoState.remaining=pomoSettings.short*60;}else{pomoState.mode='work';pomoState.remaining=pomoSettings.work*60;}updatePomoUI();}
-function updatePomoUI(){const m=Math.floor(pomoState.remaining/60),s=pomoState.remaining%60;document.getElementById('pomo-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');const modeMap={work:{label:'作業時間',cls:'work',color:'var(--accent)',total:pomoSettings.work*60},break:{label:'短い休憩',cls:'break',color:'var(--blue)',total:pomoSettings.short*60},long:{label:'長い休憩',cls:'long',color:'var(--purple)',total:pomoSettings.long*60}};const md=modeMap[pomoState.mode];document.getElementById('pomo-mode-label').textContent=md.label;document.getElementById('pomo-mode-label').className='pomo-mode '+md.cls;const circ=2*Math.PI*68;const fg=document.getElementById('pomo-ring-fg');fg.style.strokeDasharray=circ;fg.style.strokeDashoffset=circ*(1-pomoState.remaining/md.total);fg.style.stroke=md.color;document.getElementById('pomo-sessions').textContent='セッション：'+pomoState.session+' / 今日の完了：'+pomoState.todayDone;}
 
 // ── CALENDAR ──
 function initCalendar(){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();}
@@ -1035,10 +970,8 @@ initDueSelects();
 cleanOldDoneTasks();
 checkAutoReset();
 updateStreak();
-pomoState.remaining = pomoSettings.work * 60;
 renderTasks();
 renderRoutines();
-updatePomoUI();
 // Firebase非同期ロード
 _initFirebase();
 </script>
